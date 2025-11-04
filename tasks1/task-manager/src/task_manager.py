@@ -1,5 +1,5 @@
 class TaskManager:
-    def __init__(self, storage_file='tasks.json'):
+    def __init__(self, storage_file='../tasks.json'):
         self.storage_file = storage_file
         self.tasks = self.load_tasks()
 
@@ -28,6 +28,14 @@ class TaskManager:
 
     def list_tasks(self):
         return self.tasks
+
+    def search_tasks(self, query):
+        """Return tasks where the title or description contains the query string (case-insensitive)."""
+        query_lower = query.lower()
+        return [
+            task for task in self.tasks
+            if query_lower in task['title'].lower() or query_lower in task['description'].lower()
+        ]
 
     def generate_id(self):
         import uuid

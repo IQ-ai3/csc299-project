@@ -6,9 +6,10 @@ TASKS_FILE = "../tasks.json"
 
 def main():
     parser = argparse.ArgumentParser(description='Simple Task Manager CLI')
-    parser.add_argument('action', choices=['add', 'list'], help='Action to perform: add a task or list tasks')
+    parser.add_argument('action', choices=['add', 'list', 'search'], help='Action to perform: add, list, or search tasks')
     parser.add_argument('--title', type=str, help='Title of the task (required for adding a task)')
     parser.add_argument('--description', type=str, help='Description of the task (required for adding a task)')
+    parser.add_argument('--query', type=str, help='Keyword to search for in tasks (required for search)')
 
     args = parser.parse_args()
 
@@ -21,14 +22,34 @@ def main():
     elif args.action == 'list':
         list_tasks()
         print("Tasks listed.")
+    elif args.action == 'search':
+        if not args.query:
+            print("Error: --query is required for searching tasks.")
+            return
+        search_tasks(args.query)
 
 def handle_command(command, args):
     if command == "add":
         add_task(args)
     elif command == "list":
         list_tasks()
+    elif command == "search":
+        if not args:
+            print("Usage: python main.py search <keyword>")
+            return
+        search_tasks(args[0])
     else:
         print(f"Unknown command: {command}")
+# ...existing code...
+def search_tasks(query):
+    tasks = load_tasks()
+    query_lower = query.lower()
+    results = [task for task in tasks if query_lower in task['title'].lower() or query_lower in task['description'].lower()]
+    if not results:
+        print(f"No tasks found matching: {query}")
+        return
+    for task in results:
+        print(f"[{task['id']}] {task['title']}: {task['description']}")
 
 def add_task(args):
     if len(args) < 2:

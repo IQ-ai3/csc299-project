@@ -1,4 +1,4 @@
-def read_tasks_from_file(file_path):
+def read_tasks_from_file(file_path="../tasks.json"):
     import json
     try:
         with open(file_path, 'r') as file:

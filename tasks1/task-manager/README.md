@@ -6,6 +6,7 @@ A simple command-line interface task manager that allows users to add and list t
 
 - Add new tasks with a title and description.
 - List all existing tasks.
+- **Search tasks by keyword in title or description.**
 - Tasks are saved in a `tasks.json` file in the root directory.
 
 ## Installation
@@ -39,6 +40,11 @@ python src/main.py
 - **List Tasks**: 
   ```
   python src/main.py list
+  ```
+
+- **Search Tasks**:  
+  ```
+  python src/main.py search "keyword"
   ```
 
 ## Project Structure
