@@ -1,2 +1,0 @@
-# requirements.txt
-# Add any dependencies here
