@@ -10,3 +10,6 @@ name = "tasks3"
 version = "0.0.0"
 description = "Tasks3 package for csc299-project (top-level)"
 authors = [ { name = "IQ-ai3" } ]
+
+[project.scripts]
+tasks3 = "tasks3.main:main"
