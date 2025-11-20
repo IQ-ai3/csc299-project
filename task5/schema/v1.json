@@ -1,0 +1,446 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://taskpkms.dev/schema/v1.json",
+  "title": "TaskPKMS Data Model v1",
+  "description": "JSON schema for TaskPKMS entities: Notes, Tasks, Projects, Tags, Links, Attachments, and Revisions",
+  "definitions": {
+    "uuid": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+      "description": "UUID v4 identifier"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 timestamp"
+    },
+    "status": {
+      "type": "string",
+      "enum": ["todo", "in-progress", "blocked", "done", "archived"],
+      "description": "Task status"
+    },
+    "priority": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 5,
+      "description": "Priority level (1=lowest, 5=highest)"
+    },
+    "Note": {
+      "type": "object",
+      "required": ["id", "type", "title", "created", "modified", "version"],
+      "properties": {
+        "id": {
+          "$ref": "#/definitions/uuid"
+        },
+        "type": {
+          "type": "string",
+          "const": "note"
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 500
+        },
+        "body": {
+          "type": "string",
+          "description": "Markdown content"
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        },
+        "links": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/uuid"
+          },
+          "description": "IDs of linked entities"
+        },
+        "attachments": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/uuid"
+          }
+        },
+        "created": {
+          "$ref": "#/definitions/timestamp"
+        },
+        "modified": {
+          "$ref": "#/definitions/timestamp"
+        },
+        "version": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Revision version for conflict detection"
+        },
+        "metadata": {
+          "type": "object",
+          "description": "User-defined key-value pairs",
+          "additionalProperties": true
+        }
+      },
+      "additionalProperties": false
+    },
+    "Task": {
+      "type": "object",
+      "required": ["id", "type", "title", "status", "created", "modified", "version"],
+      "properties": {
+        "id": {
+          "$ref": "#/definitions/uuid"
+        },
+        "type": {
+          "type": "string",
+          "const": "task"
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 500
+        },
+        "body": {
+          "type": "string",
+          "description": "Task description in Markdown"
+        },
+        "status": {
+          "$ref": "#/definitions/status"
+        },
+        "priority": {
+          "$ref": "#/definitions/priority"
+        },
+        "due": {
+          "$ref": "#/definitions/timestamp"
+        },
+        "completed": {
+          "$ref": "#/definitions/timestamp"
+        },
+        "project": {
+          "$ref": "#/definitions/uuid",
+          "description": "Parent project ID"
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        },
+        "links": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/uuid"
+          }
+        },
+        "attachments": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/uuid"
+          }
+        },
+        "created": {
+          "$ref": "#/definitions/timestamp"
+        },
+        "modified": {
+          "$ref": "#/definitions/timestamp"
+        },
+        "version": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "metadata": {
+          "type": "object",
+          "additionalProperties": true
+        }
+      },
+      "additionalProperties": false
+    },
+    "Project": {
+      "type": "object",
+      "required": ["id", "type", "name", "created", "modified", "version"],
+      "properties": {
+        "id": {
+          "$ref": "#/definitions/uuid"
+        },
+        "type": {
+          "type": "string",
+          "const": "project"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "description": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["active", "archived", "completed"]
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        },
+        "created": {
+          "$ref": "#/definitions/timestamp"
+        },
+        "modified": {
+          "$ref": "#/definitions/timestamp"
+        },
+        "version": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "metadata": {
+          "type": "object",
+          "additionalProperties": true
+        }
+      },
+      "additionalProperties": false
+    },
+    "Tag": {
+      "type": "object",
+      "required": ["name"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100,
+          "pattern": "^[a-z0-9_-]+$",
+          "description": "Tag name (lowercase alphanumeric, hyphens, underscores)"
+        },
+        "color": {
+          "type": "string",
+          "pattern": "^#[0-9a-fA-F]{6}$",
+          "description": "Hex color for UI display"
+        },
+        "description": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "Link": {
+      "type": "object",
+      "required": ["from", "to", "created"],
+      "properties": {
+        "from": {
+          "$ref": "#/definitions/uuid",
+          "description": "Source entity ID"
+        },
+        "to": {
+          "$ref": "#/definitions/uuid",
+          "description": "Target entity ID"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["references", "depends-on", "related", "parent-of", "child-of"],
+          "default": "references"
+        },
+        "created": {
+          "$ref": "#/definitions/timestamp"
+        },
+        "metadata": {
+          "type": "object",
+          "additionalProperties": true
+        }
+      },
+      "additionalProperties": false
+    },
+    "Attachment": {
+      "type": "object",
+      "required": ["id", "filename", "path", "size", "created"],
+      "properties": {
+        "id": {
+          "$ref": "#/definitions/uuid"
+        },
+        "filename": {
+          "type": "string",
+          "minLength": 1
+        },
+        "path": {
+          "type": "string",
+          "description": "Relative path within repository"
+        },
+        "mimeType": {
+          "type": "string"
+        },
+        "size": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "File size in bytes"
+        },
+        "checksum": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$",
+          "description": "SHA-256 checksum"
+        },
+        "created": {
+          "$ref": "#/definitions/timestamp"
+        },
+        "metadata": {
+          "type": "object",
+          "additionalProperties": true
+        }
+      },
+      "additionalProperties": false
+    },
+    "Revision": {
+      "type": "object",
+      "required": ["entityId", "version", "timestamp", "snapshot"],
+      "properties": {
+        "entityId": {
+          "$ref": "#/definitions/uuid",
+          "description": "ID of the entity being versioned"
+        },
+        "version": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "timestamp": {
+          "$ref": "#/definitions/timestamp"
+        },
+        "author": {
+          "type": "string",
+          "description": "User or system identifier"
+        },
+        "message": {
+          "type": "string",
+          "description": "Revision commit message"
+        },
+        "snapshot": {
+          "type": "object",
+          "description": "Complete entity state at this revision",
+          "oneOf": [
+            {"$ref": "#/definitions/Note"},
+            {"$ref": "#/definitions/Task"},
+            {"$ref": "#/definitions/Project"}
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "Repository": {
+      "type": "object",
+      "required": ["version", "created"],
+      "properties": {
+        "version": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$",
+          "description": "Repository schema version (semver)"
+        },
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "created": {
+          "$ref": "#/definitions/timestamp"
+        },
+        "encryption": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean"
+            },
+            "algorithm": {
+              "type": "string",
+              "enum": ["AES-256-GCM"]
+            },
+            "keyDerivation": {
+              "type": "string",
+              "enum": ["PBKDF2", "Argon2id"]
+            }
+          }
+        },
+        "sync": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean"
+            },
+            "remote": {
+              "type": "string",
+              "format": "uri"
+            },
+            "lastSync": {
+              "$ref": "#/definitions/timestamp"
+            }
+          }
+        },
+        "settings": {
+          "type": "object",
+          "additionalProperties": true
+        }
+      },
+      "additionalProperties": false
+    },
+    "ExportBundle": {
+      "type": "object",
+      "required": ["version", "exported", "entities"],
+      "properties": {
+        "version": {
+          "type": "string",
+          "const": "1.0.0"
+        },
+        "exported": {
+          "$ref": "#/definitions/timestamp"
+        },
+        "repository": {
+          "$ref": "#/definitions/Repository"
+        },
+        "entities": {
+          "type": "object",
+          "properties": {
+            "notes": {
+              "type": "array",
+              "items": {"$ref": "#/definitions/Note"}
+            },
+            "tasks": {
+              "type": "array",
+              "items": {"$ref": "#/definitions/Task"}
+            },
+            "projects": {
+              "type": "array",
+              "items": {"$ref": "#/definitions/Project"}
+            },
+            "tags": {
+              "type": "array",
+              "items": {"$ref": "#/definitions/Tag"}
+            },
+            "links": {
+              "type": "array",
+              "items": {"$ref": "#/definitions/Link"}
+            },
+            "attachments": {
+              "type": "array",
+              "items": {"$ref": "#/definitions/Attachment"}
+            },
+            "revisions": {
+              "type": "array",
+              "items": {"$ref": "#/definitions/Revision"}
+            }
+          }
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "oneOf": [
+    {"$ref": "#/definitions/Note"},
+    {"$ref": "#/definitions/Task"},
+    {"$ref": "#/definitions/Project"},
+    {"$ref": "#/definitions/Tag"},
+    {"$ref": "#/definitions/Link"},
+    {"$ref": "#/definitions/Attachment"},
+    {"$ref": "#/definitions/Revision"},
+    {"$ref": "#/definitions/Repository"},
+    {"$ref": "#/definitions/ExportBundle"}
+  ]
+}

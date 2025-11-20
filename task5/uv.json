@@ -1,0 +1,11 @@
+{
+  "name": "name-storage-cli",
+  "version": "0.1.0",
+  "description": "A CLI tool to store and list names in a JSON file.",
+  "dependencies": {
+    "click": "^8.0.0"
+  },
+  "scripts": {
+    "start": "python main.py"
+  }
+}

@@ -1,0 +1,5 @@
+pytest>=7.0
+
+# Optional: other dev tools you may want
+# black
+# flake8
