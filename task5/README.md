@@ -24,11 +24,15 @@ The Name Storage CLI is a command-line tool designed to store and manage a list 
    ```
 
 ## 📖 Usage
-1. Add a name:
+1. Navigate to the task5 directory:
+   ```bash
+   cd task5
+   ```
+2. Add a name:
    ```bash
    python main.py add "John Doe"
    ```
-2. List all names:
+3. List all names:
    ```bash
    python main.py list-names
    ```
