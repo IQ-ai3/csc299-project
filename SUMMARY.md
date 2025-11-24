@@ -10,7 +10,7 @@ This document provides a comprehensive overview of the development process used 
 
 GitHub Copilot served as the primary development assistant throughout the course, offering multiple model options with varying characteristics:
 
-**Claude Sonnet 4.5**: This model proved to be the most effective for complex coding tasks. It excelled at understanding context, providing detailed explanations, and generating well-structured code with proper type hints and docstrings. Claude Sonnet was particularly helpful for refactoring code, implementing new features, and writing comprehensive test suites. Its ability to maintain conversation context and provide thoughtful solutions made it the go-to choice for challenging problems.
+**Claude Sonnet 4.5**: This model proved to be the most effective for complex coding tasks. It excelled at understanding context, providing detailed explanations, and generating well-structured code with proper type hints and docstrings. Claude Sonnet was particularly helpful for refactoring code, implementing new features, and writing comprehensive test suites. Its ability to maintain conversation context and provide thoughtful solutions made it the go-to choice. 
 
 **GPT-4o**: This model offered average performance, serving as a reliable option for standard coding tasks. It was particularly useful for quick fixes, generating boilerplate code, and providing alternative approaches to problems. While not as detailed as Claude Sonnet, it was faster and sufficient for straightforward implementations.
 
@@ -32,7 +32,38 @@ Unfortunately, despite multiple attempts to get verified as a student and numero
 
 ### Lovable
 
-Lovable was briefly explored at the start of the course. While it showed promise for rapid prototyping and hackathon-style development, it wasn't ultimately used for any class projects. The tool seemed better suited for quick MVPs rather than the structured, specification-driven development required for course assignments.
+Lovable was briefly explored at the start of the course. While it showed promise for rapid prototyping and hackathon-style development, it wasn't ultimately used for any class tasks. The tool seemed better suited for quick MVPs rather than the structured, specification-driven development required for course assignments.
+
+## Prototypes
+
+Before writing the final version, I built multiple prototypes (tasks1–tasks5). This helped me explore ideas without getting stuck on details too early.
+
+### tasks1
+The first prototype was a simple task manager where you can add, search, delete, and edit tasks. This was the base for the final project since it taught me how to navigate a CLI and what a PKMS is.
+
+### tasks2
+The tasks2 prototype is where I consulted other Personal Task MAnagement Systems such as obsidian, notion, google notebook, etc. I really admired the baclink/linking system in obsidian that resembled a mind map/castle. The CLI version of this was very underwhelming but I chose to add a task linking system for tasks2 and the final project. In the final project the user is also able to unlink tasks.
+
+### tasks3
+This prototype is a replica of the tasks2 prototype, except here I learned to use `uv`, a real Python package layout, and implented pytest. Pytest was also used in the final project. 
+
+### tasks4
+This was a standalone experiment but was an essential part of the final project. This project focused on integrating OpenAI API into a task manager. In the final project there is a ai summary that describes what tasks the user should focus on based on the utility-to-cost ratios.  
+
+### task5
+This version used GitHub's spec-kit. Spec-kit was really effective in planning the task-manager.
+
+### Final Project
+The final project combined all the unique aspects from the prototype into one final task-manager. 
+-➕ Add a Task
+-📋 List All Tasks
+-🔍 Search for Tasks
+-🗑️ Delete a Task
+-✏️ Edit a Task
+-👁️ View Task Details
+-🔗 Link Tasks Together
+-🔓 Unlink Tasks
+-🤖 Get AI Task Summary
 
 ## Development Methodologies
 
@@ -69,17 +100,14 @@ Exploring Personal Knowledge Management Systems (PKMS) like Notion and Obsidian 
 - Maintain a clear overview of project requirements and progress
 - Document design decisions and their rationale
 
-The bi-directional linking capabilities of Obsidian, in particular, helped me see connections between different concepts in economics, computer science, and software development.
 
 ## GitHub Student Developer Pack
 
 The GitHub Student Developer Pack was immensely valuable, providing access to:
 - GitHub Copilot's premium features and multiple models
 - Various development tools and services
-- Cloud hosting credits for deploying projects
 - Learning resources and documentation
 
-This access level-set the playing field and enabled experimentation with different tools without financial constraints.
 
 ## What Worked Well
 
@@ -214,5 +242,3 @@ Moving forward, I plan to:
 - Develop more sophisticated prompt engineering skills for AI assistants
 - Contribute to open-source projects to gain experience with larger codebases
 - Explore advanced features of tools I've used (GitHub Copilot, pytest, PKMS)
-
-The skills and insights gained through this course have established a foundation for effective software development in an AI-augmented environment, balancing the power of AI assistance with fundamental software engineering principles.

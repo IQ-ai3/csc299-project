@@ -1,8 +1,10 @@
 import typer
 from rich.console import Console
 from rich.table import Table
+from rich.panel import Panel
 from typing import Optional
 from task_manager import TaskManager
+from ai_summary import get_ai_task_summary
 
 app = typer.Typer()
 console = Console()
@@ -47,15 +49,20 @@ def list():
     table.add_column("Cost (Hrs)", justify="right", style="yellow")
     table.add_column("ROI", justify="right", style="blue")
     table.add_column("Deadline", justify="center", style="red")
+    table.add_column("Links", justify="center", style="cyan")
 
     for task, roi in tasks_with_roi:
+        linked_count = len(task.get('linked_tasks', []))
+        link_display = f"🔗 {linked_count}" if linked_count > 0 else "-"
+        
         table.add_row(
             str(task['id']),
             task['description'],
             str(task['utility_score']),
             f"{task['cost_hours']:.2f}",
             f"{roi:.2f}",
-            task.get('deadline') or 'N/A'
+            task.get('deadline') or 'N/A',
+            link_display
         )
 
     console.print(table)
@@ -101,6 +108,124 @@ def search(query: str):
         )
 
     console.print(table)
+
+@app.command()
+def edit(
+    task_id: int,
+    description: Optional[str] = None,
+    utility: Optional[int] = None,
+    cost: Optional[float] = None,
+    deadline: Optional[str] = None,
+    status: Optional[str] = None
+):
+    """
+    Edit a task's properties. Only provided fields will be updated.
+
+    :param task_id: ID of the task to edit.
+    :param description: New description for the task.
+    :param utility: New utility score (1-100).
+    :param cost: New cost in hours.
+    :param deadline: New deadline in YYYY-MM-DD format.
+    :param status: New status (pending/complete).
+    """
+    updates = {}
+    if description is not None:
+        updates['description'] = description
+    if utility is not None:
+        updates['utility_score'] = utility
+    if cost is not None:
+        updates['cost_hours'] = cost
+    if deadline is not None:
+        updates['deadline'] = deadline
+    if status is not None:
+        updates['status'] = status
+    
+    if not updates:
+        console.print("No updates provided. Please specify at least one field to update.", style="yellow")
+        return
+    
+    if task_manager.edit_task(task_id, **updates):
+        console.print(f"Task {task_id} updated successfully!", style="green")
+        console.print(f"Updated fields: {', '.join(updates.keys())}", style="cyan")
+    else:
+        console.print(f"Task {task_id} not found.", style="red")
+
+@app.command()
+def ai_summary():
+    """
+    Generate an AI-powered summary of your tasks using OpenAI's API.
+    Requires OPENAI_API_KEY environment variable to be set.
+    """
+    summary = get_ai_task_summary(task_manager.tasks)
+    console.print(Panel(summary, title="🤖 AI Task Analysis", border_style="blue"))
+
+@app.command()
+def link(task_id: int, linked_task_id: int):
+    """
+    Link two tasks together to show their relationship.
+
+    :param task_id: ID of the first task.
+    :param linked_task_id: ID of the task to link to.
+    """
+    if task_id == linked_task_id:
+        console.print("Cannot link a task to itself.", style="red")
+        return
+    
+    if task_manager.link_tasks(task_id, linked_task_id):
+        console.print(f"✓ Tasks {task_id} and {linked_task_id} are now linked!", style="green")
+    else:
+        console.print(f"Failed to link tasks. Check that both task IDs exist.", style="red")
+
+@app.command()
+def unlink(task_id: int, linked_task_id: int):
+    """
+    Remove the link between two tasks.
+
+    :param task_id: ID of the first task.
+    :param linked_task_id: ID of the task to unlink from.
+    """
+    if task_manager.unlink_tasks(task_id, linked_task_id):
+        console.print(f"✓ Tasks {task_id} and {linked_task_id} are now unlinked.", style="green")
+    else:
+        console.print(f"Failed to unlink tasks. Check that both task IDs exist.", style="red")
+
+@app.command()
+def view(task_id: int):
+    """
+    View detailed information about a specific task, including linked tasks.
+
+    :param task_id: ID of the task to view.
+    """
+    task = task_manager.get_task_by_id(task_id)
+    
+    if not task:
+        console.print(f"Task {task_id} not found.", style="red")
+        return
+    
+    # Calculate ROI
+    roi = task['utility_score'] / task['cost_hours'] if task['cost_hours'] != 0 else 0
+    
+    # Create details panel
+    details = f"""
+[bold cyan]ID:[/bold cyan] {task['id']}
+[bold magenta]Description:[/bold magenta] {task['description']}
+[bold green]Utility Score:[/bold green] {task['utility_score']}
+[bold yellow]Cost (Hours):[/bold yellow] {task['cost_hours']:.2f}
+[bold blue]ROI:[/bold blue] {roi:.2f}
+[bold red]Deadline:[/bold red] {task.get('deadline') or 'N/A'}
+[bold white]Status:[/bold white] {task['status']}
+"""
+    
+    # Add linked tasks information
+    linked_tasks = task_manager.get_linked_tasks(task_id)
+    if linked_tasks:
+        details += "\n[bold]🔗 Linked Tasks:[/bold]\n"
+        for linked in linked_tasks:
+            details += f"  • Task {linked['id']}: {linked['description']}\n"
+    else:
+        details += "\n[dim]No linked tasks[/dim]"
+    
+    console.print(Panel(details, title=f"📋 Task Details", border_style="cyan"))
 
 if __name__ == "__main__":
     app()
